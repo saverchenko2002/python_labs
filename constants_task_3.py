@@ -38,3 +38,9 @@ if __name__ != "__main__":
 
     matrix[14, 8] = 1
     matrix[14, 12] = 1
+
+    incorrect_input = "Incorrect input."
+    example_input = "Enter start point to choose an existing or to create a new [Example: 3 10]"
+    choice_question = "Random start point? Y/N"
+    bounds_hint = "Arguments should be in bounds  14 >= x, y >= 0."
+
