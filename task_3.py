@@ -78,11 +78,22 @@ def matrix_flip(a):
     return np.asarray(temp)
 
 
+def bounds(work_field):
+    if work_field.full_route[Field.count][0] == 0:
+        work_field.field[Field.full_route[Field.count]].routes['U'] = False
+    if work_field.full_route[Field.count][0] == size-1:
+        work_field.field[Field.full_route[Field.count]].routes['D'] = False
+    if work_field.full_route[Field.count][1] == 0:
+        work_field.field[Field.full_route[Field.count]].routes['L'] = False
+    if work_field.full_route[Field.count][1] == size-1:
+        work_field.field[Field.full_route[Field.count]].routes['R'] = False
+
+
 def search_algorithm():
     start_point = user_choice()
     while start_point == "NaN":
         start_point = user_choice()
-
+    # start_point = (3, 8)
 
     matrix[start_point] = 1
     work_field = Field(matrix)
@@ -95,10 +106,10 @@ def search_algorithm():
         if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
             break
 
-
         prev_count = Field.count
 
         while 0 <= Field.y_current < size - 1:
+            bounds(work_field)
             if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
                 break
             Field.y_current += 1
@@ -126,6 +137,7 @@ def search_algorithm():
                 break
 
         while 0 < Field.y_current <= size - 1:
+            bounds(work_field)
             if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
                 break
             Field.y_current -= 1
@@ -153,6 +165,7 @@ def search_algorithm():
                 break
 
         while 0 <= Field.x_current < size - 1:
+            bounds(work_field)
             if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
                 break
             Field.x_current += 1
@@ -180,6 +193,7 @@ def search_algorithm():
                 break
 
         while 0 < Field.x_current <= size - 1:
+            bounds(work_field)
             if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
                 break
             Field.x_current -= 1
@@ -205,7 +219,8 @@ def search_algorithm():
                 Field.x_current = Field.full_route[Field.count][0]
                 work_field.field[Field.full_route[Field.count]].routes['U'] = False
                 break
-        print('{}->'.format(Field.full_route), sep="")
+        # for i in range (len(Field.full_route))
+        print('{}'.format("->".join([str(i) for i in Field.full_route])), sep="")
         if prev_count == Field.count:
             print("TUPIK")
             work_field.field[Field.x_current, Field.y_current].visited = False
@@ -215,22 +230,35 @@ def search_algorithm():
             x, y = Field.full_route.pop()
             print(work_field.field[Field.x_current, Field.y_current].routes)
             print(Field.x_current, Field.y_current)
+            print(Field.count)
+            print(work_field.field[Field.x_current, Field.y_current].routes.values())
+            if not any(work_field.field[Field.x_current, Field.y_current].routes.values()) and Field.count == -1:
+                print(false_point)
+                break
             if x == Field.full_route[Field.count][0]:
                 if y > Field.full_route[Field.count][1]:
-                    for i in work_field.field[x, Field.full_route[Field.count][1]+1:y]:
+                    for i in work_field.field[x, Field.full_route[Field.count][1] + 1:y]:
                         i.value = 0
                 if y < Field.full_route[Field.count][1]:
-                    for i in work_field.field[x, y+1:Field.full_route[Field.count][1]]:
+                    for i in work_field.field[x, y + 1:Field.full_route[Field.count][1]]:
                         i.value = 0
 
             if y == Field.full_route[Field.count][1]:
+                print("chmo")
                 if x > Field.full_route[Field.count][0]:
-                    for i in work_field.field[Field.full_route[Field.count][0]+1:x, y]:
+                    for i in work_field.field[Field.full_route[Field.count][0] + 1:x, y]:
                         i.value = 0
-                if y < Field.full_route[Field.count][1]:
-                    for i in work_field.field[x+1:Field.full_route[Field.count][0], y]:
+                        print("chmo1")
+                if x < Field.full_route[Field.count][0]:
+                    for i in work_field.field[x + 1:Field.full_route[Field.count][0], y]:
                         i.value = 0
-            work_field.field[x, y] = Cell(x, y, 1)
+                        print("chmo2")
+            work_field.field[x, y].routes['R'] = True
+            work_field.field[x, y].routes['L'] = True
+            work_field.field[x, y].routes['D'] = True
+            work_field.field[x, y].routes['U'] = True
+            work_field.field[x, y].visited = False
+            work_field.field[x, y].value = 1
     return work_field
 
 

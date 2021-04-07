@@ -44,6 +44,7 @@ if __name__ != "__main__":
     example_input = "Enter start point to choose an existing or to create a new [Example: 3 10]"
     choice_question = "Random start point? Y/N"
     bounds_hint = "Arguments should be in bounds  14 >= x, y >= 0."
+    false_point = "Impossible to create a cycle from a given point."
 
     screen = trtl.Screen()
     turtle = trtl.Turtle(visible=False)
