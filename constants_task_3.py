@@ -1,4 +1,5 @@
 import numpy as np
+import turtle as trtl
 
 if __name__ != "__main__":
     size = 15
@@ -44,3 +45,9 @@ if __name__ != "__main__":
     choice_question = "Random start point? Y/N"
     bounds_hint = "Arguments should be in bounds  14 >= x, y >= 0."
 
+    screen = trtl.Screen()
+    turtle = trtl.Turtle(visible=False)
+    screen.setworldcoordinates(0, 0, size, size)
+    dot_size = screen.window_width() / size
+    turtle.speed('fastest')
+    turtle.shape('turtle')
