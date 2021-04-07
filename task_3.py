@@ -2,7 +2,7 @@ from constants_task_3 import *
 
 
 class Cell:
-    def __init__(self, x, y, value):
+    def __init__(self,  value):
         self.routes = {'R': True, 'L': True, 'D': True, 'U': True}
         self.visited = False
         self.value = value
@@ -17,7 +17,7 @@ class Field:
     x_current, y_current = 0, 0
 
     def __init__(self, array):
-        self.field = [[Cell(i, j, array[i, j]) for j in range(size)] for i in range(size)]
+        self.field = [[Cell(array[i, j]) for j in range(size)] for i in range(size)]
         self.field = np.asarray(self.field)
 
     def __repr__(self):
@@ -243,10 +243,11 @@ def search_algorithm():
                 if x < Field.full_route[Field.count][0]:
                     for i in work_field.field[x + 1:Field.full_route[Field.count][0], y]:
                         i.value = 0
-            work_field.field[x, y] = Cell(x, y, 1)
+            work_field.field[x, y] = Cell(1)
 
     return work_field
 
 
-matrix_visualisation(search_algorithm())
-screen.mainloop()
+if __name__ == "__main__":
+    matrix_visualisation(search_algorithm())
+    screen.mainloop()
