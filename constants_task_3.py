@@ -42,7 +42,7 @@ if __name__ != "__main__":
 
     incorrect_input = "Incorrect input."
     example_input = "Enter start point to choose an existing or to create a new [Example: 3 10]"
-    choice_question = "Random start point? Y/N"
+    choice_question = "Random start point? Y/N:  "
     bounds_hint = "Arguments should be in bounds  14 >= x, y >= 0."
     false_point = "Impossible to create a cycle from a given point."
 
@@ -52,3 +52,4 @@ if __name__ != "__main__":
     dot_size = screen.window_width() / size
     turtle.speed('fastest')
     turtle.shape('turtle')
+    turtle.color("green")

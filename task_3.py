@@ -17,6 +17,14 @@ class Field:
     full_route = list()
     x_current, y_current = 0, 0
 
+    @classmethod
+    def clear(cls):
+        cls.count = 0
+        cls.x_current = 0
+        cls.y_current = 0
+        cls.end = -1
+        cls.full_route.clear()
+
     def __init__(self, array):
         self.field = [[Cell(i, j, array[i, j]) for j in range(size)] for i in range(size)]
         self.field = np.asarray(self.field)
@@ -36,8 +44,7 @@ def random_start():
 
 
 def user_choice():
-    print(choice_question)
-    choice = input()
+    choice = input(choice_question)
     if choice.lower() == 'y':
         start = random_start()
     elif choice.lower() == 'n':
@@ -52,58 +59,81 @@ def user_choice():
 
 
 def matrix_visualisation(a):
-    matrix = matrix_flip(a.field)
+    print('{}'.format("->".join([str(i) for i in Field.full_route])), sep="")
+
+    a.field[Field.x_current, Field.y_current].value = 3
+
+    matrix1 = rotate90Clockwise(a)
+    # matrix[Field.full_route[0][1], Field.full_route[0][0]].value = 3
+    # matrix = a.field
     turtle.penup()
     trtl.tracer(0, 0)
+    colors = {1: "red", -1: "HotPink", 2: "blue", 3: "black"}
     for r in range(size):
         for c in range(size):
-            if matrix[r, c].value == 1:
-                turtle.goto(c, r)
-                turtle.dot(dot_size, "red")
-            elif matrix[r, c].value == -1:
-                turtle.goto(c, r)
-                turtle.dot(dot_size, "HotPink")
-            elif matrix[r, c].value == 2:
-                turtle.goto(c, r)
-                turtle.dot(dot_size, "blue")
+            if matrix1[c, r].value == 0:
+                continue
+            turtle.goto(c, r)
+            turtle.dot(dot_size, colors[matrix1[c, r].value])
     trtl.update()
 
 
-def matrix_flip(a):
+def rotate90Clockwise(matrix2):
+    A = matrix2.field
+    N = len(A[0])
+    for i in range(N // 2):
+        for j in range(i, N - i - 1):
+            temp = A[i][j]
+            A[i][j] = A[N - 1 - j][i]
+            A[N - 1 - j][i] = A[N - 1 - i][N - 1 - j]
+            A[N - 1 - i][N - 1 - j] = A[j][N - 1 - i]
+            A[j][N - 1 - i] = temp
+    return np.asarray(A)
+
+
+def matrix_flip(a, b):
     temp = []
+    a = a.tolist()
     for i in range(len(a)):
         temp = temp + [a[i][:]]
+    if b == 'h':
 
-    temp.reverse()
-    return np.asarray(temp)
+        for i in range(len(temp)):
+            temp[i].reverse()
+            i = i + 1
+        return np.asarray(temp)
+    elif b == 'v':
+        temp.reverse()
+        return np.asarray(temp)
 
 
 def bounds(work_field):
     if work_field.full_route[Field.count][0] == 0:
         work_field.field[Field.full_route[Field.count]].routes['U'] = False
-    if work_field.full_route[Field.count][0] == size-1:
+    if work_field.full_route[Field.count][0] == size - 1:
         work_field.field[Field.full_route[Field.count]].routes['D'] = False
     if work_field.full_route[Field.count][1] == 0:
         work_field.field[Field.full_route[Field.count]].routes['L'] = False
-    if work_field.full_route[Field.count][1] == size-1:
+    if work_field.full_route[Field.count][1] == size - 1:
         work_field.field[Field.full_route[Field.count]].routes['R'] = False
 
 
-def search_algorithm():
-    start_point = user_choice()
-    while start_point == "NaN":
-        start_point = user_choice()
-    # start_point = (3, 8)
-
-    matrix[start_point] = 1
-    work_field = Field(matrix)
+def search_algorithm(PW):
+    # start_point = user_choice()
+    # while start_point == "NaN":
+    #     start_point = user_choice()
+    start_point = PW
+    print("{}->".format(PW), end='')
+    matrix_new = np.asarray(matrix.tolist())
+    matrix_new[start_point] = 1
+    work_field = Field(matrix_new)
     Field.x_current, Field.y_current = start_point
-    work_field.field[Field.x_current, Field.y_current].value = 2
 
     Field.full_route.append(start_point)
 
     while work_field.end == -1:
         if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
+            print("Route exists")
             break
 
         prev_count = Field.count
@@ -114,7 +144,8 @@ def search_algorithm():
                 break
             Field.y_current += 1
             if work_field.field[Field.x_current, Field.y_current].value == -1 or \
-                    work_field.field[Field.x_current, Field.y_current].visited:
+                    work_field.field[Field.x_current, Field.y_current].visited \
+                    or not work_field.field[Field.full_route[Field.count]].routes['R']:
                 Field.y_current = Field.full_route[Field.count][1]
                 work_field.field[Field.full_route[Field.count]].routes['R'] = False
                 break
@@ -142,7 +173,8 @@ def search_algorithm():
                 break
             Field.y_current -= 1
             if work_field.field[Field.x_current, Field.y_current].value == -1 or work_field.field[
-                Field.x_current, Field.y_current].visited:
+                Field.x_current, Field.y_current].visited \
+                    or not work_field.field[Field.full_route[Field.count]].routes['L']:
                 Field.y_current = Field.full_route[Field.count][1]
                 work_field.field[Field.full_route[Field.count]].routes['L'] = False
                 break
@@ -170,7 +202,8 @@ def search_algorithm():
                 break
             Field.x_current += 1
             if work_field.field[Field.x_current, Field.y_current].value == -1 or work_field.field[
-                Field.x_current, Field.y_current].visited:
+                Field.x_current, Field.y_current].visited \
+                    or not work_field.field[Field.full_route[Field.count]].routes['D']:
                 Field.x_current = Field.full_route[Field.count][0]
                 work_field.field[Field.full_route[Field.count]].routes['D'] = False
                 break
@@ -197,8 +230,9 @@ def search_algorithm():
             if Field.full_route[0] == Field.full_route[len(Field.full_route) - 1] and len(Field.full_route) != 1:
                 break
             Field.x_current -= 1
-            if work_field.field[Field.x_current, Field.y_current].value == -1 or work_field.field[
-                Field.x_current, Field.y_current].visited:
+            if work_field.field[Field.x_current, Field.y_current].value == -1 \
+                    or work_field.field[Field.x_current, Field.y_current].visited \
+                    or not work_field.field[Field.full_route[Field.count]].routes['U']:
                 Field.x_current = Field.full_route[Field.count][0]
                 work_field.field[Field.full_route[Field.count]].routes['U'] = False
                 break
@@ -220,18 +254,20 @@ def search_algorithm():
                 work_field.field[Field.full_route[Field.count]].routes['U'] = False
                 break
         # for i in range (len(Field.full_route))
-        print('{}'.format("->".join([str(i) for i in Field.full_route])), sep="")
+        #print('{}'.format("->".join([str(i) for i in Field.full_route])), sep="")
+
         if prev_count == Field.count:
-            print("TUPIK")
+            #print("TUPIK")
             work_field.field[Field.x_current, Field.y_current].visited = False
             Field.count -= 1
             Field.x_current = Field.full_route[Field.count][0]
             Field.y_current = Field.full_route[Field.count][1]
             x, y = Field.full_route.pop()
-            print(work_field.field[Field.x_current, Field.y_current].routes)
-            print(Field.x_current, Field.y_current)
-            print(Field.count)
-            print(work_field.field[Field.x_current, Field.y_current].routes.values())
+            # print(work_field.field[Field.full_route[0]].routes)
+            #print('{}'.format("->".join([str(i) for i in Field.full_route])), sep="")
+            #print(Field.x_current, Field.y_current)
+            #print(Field.count)
+            #print(work_field.field[Field.x_current, Field.y_current].routes.values())
             if not any(work_field.field[Field.x_current, Field.y_current].routes.values()) and Field.count == -1:
                 print(false_point)
                 break
@@ -244,23 +280,22 @@ def search_algorithm():
                         i.value = 0
 
             if y == Field.full_route[Field.count][1]:
-                print("chmo")
+                #print("chmo")
                 if x > Field.full_route[Field.count][0]:
                     for i in work_field.field[Field.full_route[Field.count][0] + 1:x, y]:
                         i.value = 0
-                        print("chmo1")
+                        #print("chmo1")
                 if x < Field.full_route[Field.count][0]:
                     for i in work_field.field[x + 1:Field.full_route[Field.count][0], y]:
                         i.value = 0
-                        print("chmo2")
-            work_field.field[x, y].routes['R'] = True
-            work_field.field[x, y].routes['L'] = True
-            work_field.field[x, y].routes['D'] = True
-            work_field.field[x, y].routes['U'] = True
-            work_field.field[x, y].visited = False
-            work_field.field[x, y].value = 1
+                        #print("chmo2")
+            work_field.field[x, y] = Cell(x, y, 1)
+
     return work_field
 
 
-matrix_visualisation(search_algorithm())
-screen.mainloop()
+for i  in range(size):
+    for j in range(size):
+        search_algorithm((i,j))
+        Field.clear()
+
