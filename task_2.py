@@ -1,4 +1,5 @@
 from constants_task_2 import *
+import matplotlib.pyplot as plt
 
 
 def location(field):
