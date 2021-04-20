@@ -1,0 +1,1 @@
+# graphical method for linear programming task
